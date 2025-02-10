@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Эй, бро, с Днём Рождения!</title>
+  <style>
+    /* Основной стиль */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3rem;
+      margin: 0;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+    }
+    p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 20px;
+      line-height: 1.5;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #ff6f91;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #ff3f67;
+    }
+    /* Стили для canvas с конфетти */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas для конфетти -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Основное поздравление -->
+  <h1>Эй, бро, с Днём Рождения!</h1>
+  <p>
+    Сегодня твой день, и пора зажечь на полную! Желаю тебе огненного позитива, крутых приключений и моментов, которые запомнятся навсегда. Пусть жизнь будет, как самый эпичный мем – яркой, непредсказуемой и всегда в тренде!
+  </p>
+  <button id="surpriseBtn">Врубай сюрприз!</button>
+
+  <script>
+    // Настраиваем canvas для анимации конфетти
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+    
+    window.addEventListener('resize', () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+    });
+    
+    const confettiCount = 150;
+    const confetti = [];
+    const colors = ['#fde132', '#009bde', '#ff6b00', '#ff004f', '#00e676'];
+    
+    // Класс конфетти (каждая частичка)
+    class Confetto {
+      constructor() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H - H;
+        this.size = Math.random() * 8 + 4;
+        this.angle = Math.random() * 360;
+        this.velocityX = Math.random() * 2 - 1;
+        this.velocityY = Math.random() * 3 + 2;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle * Math.PI / 180);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+        ctx.restore();
+      }
+      update() {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.angle += 2;
+        // Если конфетти вышло за нижнюю границу — возвращаем наверх
+        if (this.y > H) {
+          this.y = -this.size;
+          this.x = Math.random() * W;
+        }
+        if (this.x > W || this.x < 0) {
+          this.x = Math.random() * W;
+        }
+      }
+    }
+    
+    // Инициализация конфетти
+    function initConfetti() {
+      for (let i = 0; i < confettiCount; i++) {
+        confetti.push(new Confetto());
+      }
+    }
+    
+    // Анимация конфетти
+    function animateConfetti() {
+      ctx.clearRect(0, 0, W, H);
+      confetti.forEach(c => {
+        c.update();
+        c.draw();
+      });
+      requestAnimationFrame(animateConfetti);
+    }
+    
+    let confettiActive = false;
+    document.getElementById('surpriseBtn').addEventListener('click', () => {
+      if (!confettiActive) {
+        initConfetti();
+        animateConfetti();
+        confettiActive = true;
+        document.getElementById('surpriseBtn').textContent = "Еще зажжем!";
+      }
+    });
+  </script>
+</body>
+</html>
